@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 import ssl
 import urllib.request
 from sklearn.model_selection import train_test_split
@@ -22,12 +23,19 @@ my_df['variety'] = my_df['variety'].map({
 csv = 'train.csv'
 my_df = pd.read_csv(csv)
 
+def func(x):
+    if x > 20:
+        return 1
+    else:
+        return 0
+
+vectorized_func = np.vectorize(func)
 # Train Test Split!  Set X, y
-X = my_df.drop('label', axis=1)
+x = pd.DataFrame(vectorized_func(my_df.drop('label', axis=1)))
 y = my_df['label']
 
 # Convert these to numpy arrays
-X = X.values
+X = x.values
 y = y.values
 
 # Train Test Split
@@ -75,9 +83,9 @@ for i in range(epochs):
 plt.plot(range(epochs), losses)
 plt.ylabel("loss/error")
 plt.xlabel('Epoch')
-plt.show()
+#plt.show()
 
-"""
+
 
 # Evaluate Model on Test Data Set (validate model on test set)
 with torch.no_grad():  # Basically turn off back propogation
@@ -85,4 +93,22 @@ with torch.no_grad():  # Basically turn off back propogation
     loss = criterion(y_eval, y_test) # Find the loss or error
 
 print(loss)
+
 """
+correct = 0
+with torch.no_grad():
+    for i, data in enumerate(X_test):
+        y_val = model.forward(data)
+
+        # Will tell us what type of flower class our network thinks it is
+        print(f'{i+1}.)  {str(y_val)} \t {y_test[i]} \t {y_val.argmax().item()}')
+
+        # Correct or not
+        if y_val.argmax().item() == y_test[i]:
+            correct +=1
+
+print(f'We got {correct} correct!')
+"""
+
+torch.save(model.state_dict(), 'digit_model.pt')
+

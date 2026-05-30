@@ -8,7 +8,7 @@ class Model(nn.Module):
     # Hidden Layer1 (number of neurons) -->
     # H2 (n) -->
     # output (3 classes of iris flowers)
-    def __init__(self, in_features=784, h1=100, h2=100, out_features=10):
+    def __init__(self, in_features=784, h1=128, h2=64, out_features=10):
         super().__init__() # instantiate our nn.Module
         self.fc1 = nn.Linear(in_features, h1)
         self.fc2 = nn.Linear(h1, h2)
