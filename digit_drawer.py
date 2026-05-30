@@ -25,7 +25,7 @@ def func(x):
 vectorized_func = np.vectorize(func)
 # Train Test Split!  Set X, y
 x = pd.DataFrame(vectorized_func(my_df.drop('label', axis=1)))
-grids = np.array(x.loc[:50])
+grids = np.array(x.loc[:100])
 i = 0
 grid = grids[i].reshape(28,28)
 

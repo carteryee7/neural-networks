@@ -12,7 +12,8 @@ new_model.eval()
 new_digit = torch.tensor(row, dtype=torch.float32)
 
 with torch.no_grad():
-    pred = new_model(new_digit)
+    pred = new_model(new_digit) # same output as "new_model.forward(new_digit)" roughly
     print(pred)
     print(f"\n{pred.argmax().item()}")
 
+# create convolutional neural network and compare performance
