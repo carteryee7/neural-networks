@@ -15,9 +15,11 @@ class Model(nn.Module):
         self.out = nn.Linear(h2, out_features)
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.out(x)
+        # print(self.fc1(x))
+        x = F.relu(self.fc1(x)) # all positives stay as they are, negatives go to 0 (returns 128 (h1) values)
+        # print(x)
+        x = F.relu(self.fc2(x)) # returns 64 (h2) values
+        x = self.out(x) # 10 outputs
 
         return x
 
