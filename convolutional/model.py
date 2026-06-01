@@ -12,21 +12,19 @@ class CNNModel(nn.Module):
     def forward(self, x):
         x = self.pool(torch.relu(self.conv(x)))
         x = torch.flatten(x, 1)
-        return torch.softmax(self.fc(x), dim=1)
+        return self.fc(x)
 
 torch.manual_seed(67)
-model = nn.Sequential(nn.Conv2d(1, 32, 3), nn.ReLU(), nn.MaxPool2d(2, 2), nn.Flatten(), nn.Linear(32 * 13 * 13, 10, bias=True))
+#model = nn.Sequential(nn.Conv2d(1, 16, 3), nn.ReLU(), nn.MaxPool2d(2, 2), nn.Flatten(), nn.Linear(16 * 13 * 13, 10, bias=True))
 
-"""
+
 model = nn.Sequential(
     nn.Conv2d(1, 32, 3),
     nn.ReLU(),
-    nn.Dropout(0.5),        # Add dropout after conv
     nn.MaxPool2d(2, 2),
     nn.Flatten(),
     nn.Linear(32 * 13 * 13, 128),
     nn.ReLU(),
-    nn.Dropout(0.5),        # Add dropout before output
+    nn.Dropout(0.25),       # Regularize the fully-connected layer
     nn.Linear(128, 10)
 )
-"""

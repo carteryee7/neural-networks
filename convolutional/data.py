@@ -60,7 +60,7 @@ model = model.to(device)
 # Set the criterion of model to measure the error, how far off the predictions are from the data
 criterion = nn.CrossEntropyLoss()
 # Choose Adam Optimizer, lr = learning rate (if error doesn't go down after a bunch of iterations (epochs), lower our learning rate)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 # Train our model!
@@ -72,14 +72,18 @@ losses = []
 # Create batches
 num_batches = len(X_train) // batch_size
 
+model.train()
 for i in range(epochs + 1):
     epoch_loss = 0
+    # Shuffle the training data each epoch so batches differ run to run
+    perm = torch.randperm(len(X_train), device=device)
     for batch_idx in range(num_batches):
         start_idx = batch_idx * batch_size
         end_idx = start_idx + batch_size
-        
-        X_batch = X_train[start_idx:end_idx]
-        y_batch = y_train[start_idx:end_idx]
+
+        idx = perm[start_idx:end_idx]
+        X_batch = X_train[idx]
+        y_batch = y_train[idx]
         
         # Go forward and get a prediction
         y_pred = model(X_batch)
@@ -109,10 +113,11 @@ plt.xlabel('Epoch')
 
 
 # Evaluate Model on Test Data Set (validate model on test set)
+model.eval()  # Turn off dropout so the test pass is deterministic
 with torch.no_grad():  # Basically turn off back propogation
     y_eval = model(X_test) # X_test are features from our test set, y_eval will be predictions
     loss = criterion(y_eval, y_test) # Find the loss or error
 
 print(loss)
 
-torch.save(model.state_dict(), 'cnn_model.pt')
+torch.save(model.state_dict(), 'cnn_model2.pt')
