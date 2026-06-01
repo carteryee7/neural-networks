@@ -69,10 +69,16 @@ epochs = 100 # try with 40
 batch_size = 32
 losses = []
 
+# Early stopping: halt if the loss stops improving (plateaus or oscillates)
+patience = 5          # how many epochs to wait for an improvement
+min_delta = 1e-4      # smallest loss drop that counts as an improvement
+best_loss = float('inf')
+epochs_no_improve = 0
+
 # Create batches
 num_batches = len(X_train) // batch_size
 
-model.train()
+model.train() # for clarity (models default to training mode)
 for i in range(epochs + 1):
     epoch_loss = 0
     # Shuffle the training data each epoch so batches differ run to run
@@ -104,6 +110,17 @@ for i in range(epochs + 1):
     if i % 10 == 0:
         print(f'Epoch: {i} and loss: {avg_epoch_loss:.4f}')
 
+    # Early stopping: did this epoch improve on the best loss so far?
+    if best_loss - avg_epoch_loss > min_delta:
+        best_loss = avg_epoch_loss
+        epochs_no_improve = 0
+    else:
+        epochs_no_improve += 1
+        if epochs_no_improve >= patience:
+            print(f'Early stopping at epoch {i}: no improvement for '
+                f'{patience} epochs (best loss: {best_loss:.4f})')
+            break
+
 """
 plt.plot(range(epochs), losses)
 plt.ylabel("loss/error")
@@ -120,4 +137,4 @@ with torch.no_grad():  # Basically turn off back propogation
 
 print(loss)
 
-torch.save(model.state_dict(), 'cnn_model2.pt')
+torch.save(model.state_dict(), 'cnn_model.pt')

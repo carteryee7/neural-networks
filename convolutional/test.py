@@ -4,7 +4,7 @@ import torch
 
 # Load the Saved Model
 new_model = model
-new_model.load_state_dict(torch.load('cnn_model2.pt'))
+new_model.load_state_dict(torch.load('cnn_model.pt'))
 
 # Make sure it loaded correctly
 new_model.eval()
