@@ -9,7 +9,8 @@ new_model.load_state_dict(torch.load('digit_model.pt'))
 # Make sure it loaded correctly
 new_model.eval()
 
-new_digit = torch.tensor(row, dtype=torch.float32)
+new_digit = torch.tensor(row, dtype=torch.float32) # 1D
+print(new_digit.shape)
 
 with torch.no_grad():
     pred = new_model(new_digit) # same output as "new_model.forward(new_digit)" roughly

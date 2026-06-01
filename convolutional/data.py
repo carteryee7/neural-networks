@@ -9,16 +9,24 @@ from model import model
 csv = 'train.csv'
 df = pd.read_csv(csv)
 
+"""
 def func(x):
-    if x > 50:
+    if x > 20:
         return 1
     else:
         return 0
 
 vectorized_func = np.vectorize(func)
+x = pd.DataFrame(vectorized_func(my_df.drop('label', axis=1)))
+y = my_df['label']
+"""
+
 # Train Test Split!  Set X, y
-x = pd.DataFrame(vectorized_func(df.drop('label', axis=1)))
+x = df.drop('label', axis=1)
 y = df['label']
+
+# Normalize pixel values to [0, 1] range
+x = x / 255.0
 
 # Convert these to numpy arrays
 X = x.values
@@ -39,6 +47,15 @@ X_test = X_test.view(-1, 1, 28, 28)
 y_train = torch.LongTensor(y_train)
 y_test = torch.LongTensor(y_test)
 
+# Use GPU if available
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+print(f"Using device: {device}")
+X_train = X_train.to(device)
+X_test = X_test.to(device)
+y_train = y_train.to(device)
+y_test = y_test.to(device)
+model = model.to(device)
+
 
 # Set the criterion of model to measure the error, how far off the predictions are from the data
 criterion = nn.CrossEntropyLoss()
@@ -49,31 +66,46 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 # Train our model!
 # Epochs? (one run thru all the training data in our network)
 epochs = 100
+batch_size = 32
 losses = []
+
+# Create batches
+num_batches = len(X_train) // batch_size
+
 for i in range(epochs):
-    # Go forward and get a prediction
-    y_pred = model(X_train) # Get predicted results
-
-    # Measure the loss/error, gonna be high at first
-    loss = criterion(y_pred, y_train) # predicted values vs the y_train
-
-    # Keep Track of our losses
-    losses.append(loss.detach().numpy())
-
+    epoch_loss = 0
+    for batch_idx in range(num_batches):
+        start_idx = batch_idx * batch_size
+        end_idx = start_idx + batch_size
+        
+        X_batch = X_train[start_idx:end_idx]
+        y_batch = y_train[start_idx:end_idx]
+        
+        # Go forward and get a prediction
+        y_pred = model(X_batch)
+        
+        # Measure the loss/error
+        loss = criterion(y_pred, y_batch)
+        epoch_loss += loss.item()
+        
+        # Do some back propagation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    
+    avg_epoch_loss = epoch_loss / num_batches
+    losses.append(avg_epoch_loss)
+    
     # print every 10 epoch
     if i % 10 == 0:
-        print(f'Epoch: {i} and loss: {loss}')
+        print(f'Epoch: {i} and loss: {avg_epoch_loss:.4f}')
 
-    # Do some back propagation: take the error rate of forward propagation and feed it back
-    # thru the network to fine tune the weights
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
+"""
 plt.plot(range(epochs), losses)
 plt.ylabel("loss/error")
 plt.xlabel('Epoch')
 #plt.show()
+"""
 
 
 # Evaluate Model on Test Data Set (validate model on test set)
@@ -82,3 +114,5 @@ with torch.no_grad():  # Basically turn off back propogation
     loss = criterion(y_eval, y_test) # Find the loss or error
 
 print(loss)
+
+torch.save(model.state_dict(), 'cnn_model.pt')
