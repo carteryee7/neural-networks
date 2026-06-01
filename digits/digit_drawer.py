@@ -1,7 +1,6 @@
 import pygame
 import numpy as np
 import pandas as pd
-import random
 
 pygame.init()
 screen = pygame.display.set_mode((700, 700))
