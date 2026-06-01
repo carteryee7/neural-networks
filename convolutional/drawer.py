@@ -1,7 +1,6 @@
 import pygame
 import numpy as np
 import pandas as pd
-import random
 
 pygame.init()
 screen = pygame.display.set_mode((700, 700))
@@ -83,7 +82,6 @@ while running:
     clock.tick(60)
 
 row = np.array(grid)
-row = row.flatten()
 
 #num = int(input("number: "))
 #row = np.concatenate((np.array([num]), row))

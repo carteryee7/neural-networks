@@ -60,19 +60,19 @@ model = model.to(device)
 # Set the criterion of model to measure the error, how far off the predictions are from the data
 criterion = nn.CrossEntropyLoss()
 # Choose Adam Optimizer, lr = learning rate (if error doesn't go down after a bunch of iterations (epochs), lower our learning rate)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
 
 
 # Train our model!
 # Epochs? (one run thru all the training data in our network)
-epochs = 100
+epochs = 100 # try with 40
 batch_size = 32
 losses = []
 
 # Create batches
 num_batches = len(X_train) // batch_size
 
-for i in range(epochs):
+for i in range(epochs + 1):
     epoch_loss = 0
     for batch_idx in range(num_batches):
         start_idx = batch_idx * batch_size

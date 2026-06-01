@@ -15,4 +15,18 @@ class CNNModel(nn.Module):
         return torch.softmax(self.fc(x), dim=1)
 
 torch.manual_seed(67)
-model = nn.Sequential(nn.Conv2d(1, 32, 3), nn.ReLU(), nn.MaxPool2d(2, 2), nn.Flatten(), nn.Linear(32 * 13 * 13, 10, bias=True), nn.Softmax())
+model = nn.Sequential(nn.Conv2d(1, 32, 3), nn.ReLU(), nn.MaxPool2d(2, 2), nn.Flatten(), nn.Linear(32 * 13 * 13, 10, bias=True))
+
+"""
+model = nn.Sequential(
+    nn.Conv2d(1, 32, 3),
+    nn.ReLU(),
+    nn.Dropout(0.5),        # Add dropout after conv
+    nn.MaxPool2d(2, 2),
+    nn.Flatten(),
+    nn.Linear(32 * 13 * 13, 128),
+    nn.ReLU(),
+    nn.Dropout(0.5),        # Add dropout before output
+    nn.Linear(128, 10)
+)
+"""
