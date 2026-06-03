@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class SnakeNN(nn.Module):
-    def __init__(self, in_features=11, h1=64, h2=32, out_features=4):
+    def __init__(self, h1=64, h2=32, in_features=11, out_features=4):
         super().__init__()
         self.fc1 = nn.Linear(in_features, h1)
         self.fc2 = nn.Linear(h1, h2)

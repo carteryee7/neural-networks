@@ -19,7 +19,6 @@ screen = pygame.display.set_mode((cols * CELL_SIZE, rows * CELL_SIZE))
 clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 20)
 
-
 torch.manual_seed(67)
 model = SnakeNN()
 
@@ -98,15 +97,20 @@ for i in range(episodes):
             pygame.draw.rect(screen, (255,0,0), (game.fruit[0] * CELL_SIZE, game.fruit[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
             for j in range(game.snake.length):
+                if j == 0:
+                    color = (255,255,0)
+                else:
+                    color = (0,255,0)
+
                 x, y = game.snake.positions[j]
-                pygame.draw.rect(screen, (0,255,0), (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+                pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
             pygame.display.flip()
             clock.tick(1000)
 
     
     #epsilon = max(epsilon - epsilon_decay, epsilon_min) # linear decay
-    epsilon = max(epsilon * epsilon_decay, epsilon_min)
+    epsilon = max(epsilon * epsilon_decay, epsilon_min) # exponential decay
     scores.append(score)
 
 torch.save(model.state_dict(), 'snake_model.pt')
@@ -116,4 +120,3 @@ plt.plot(range(episodes), scores)
 plt.xlabel('Episodes')
 plt.ylabel('Scores')
 plt.show()
-
