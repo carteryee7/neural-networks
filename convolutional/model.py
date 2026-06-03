@@ -33,7 +33,7 @@ model = nn.Sequential(
 )
 """
 
-# v3.0 (full CNN)
+# v3.0 (full CNN) tensor(0.0786, device='mps:0')
 
 model = nn.Sequential(
     nn.Conv2d(1, 32, 3, padding=1),   # 28x28

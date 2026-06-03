@@ -31,11 +31,11 @@ def func(x):
 
 vectorized_func = np.vectorize(func)
 # Train Test Split!  Set X, y
-x = pd.DataFrame(vectorized_func(my_df.drop('label', axis=1)))
+X = pd.DataFrame(vectorized_func(my_df.drop('label', axis=1)))
 y = my_df['label']
 
 # Convert these to numpy arrays
-X = x.values
+X = X.values
 y = y.values
 
 # Train Test Split
