@@ -1,35 +1,37 @@
 
 class Snake():
-    def __init__(self, length=1, start_pos=(0,0), cell_size=25):
+    def __init__(self, length=1, start_pos=(0, 0), cell_size=25):
         self.length = length
         self.cell_size = cell_size
-        self.positions = []
+        # Head is positions[0]; the body trails behind it.
         x, y = start_pos
-        for _ in range(length):
-            self.positions.append((x,y))
-            y += cell_size
-    
+        self.positions = [(x, y + i) for i in range(length)]
+        self._grow_pending = 0
+
+    def _move(self, dx, dy):
+        # Add a new head one cell over, then drop the tail so the whole
+        # body follows. If growth is pending (ate fruit), keep the tail.
+        head_x, head_y = self.positions[0]
+        self.positions.insert(0, (head_x + dx, head_y + dy))
+        if self._grow_pending > 0:
+            self._grow_pending -= 1
+            self.length += 1
+        else:
+            self.positions.pop()
+
     def up(self):
-        if self.length > 0:
-            x, y = self.positions[0]
-            self.positions[0] = (x, y - 1)
+        self._move(0, -1)
 
     def down(self):
-        if self.length > 0:
-            x, y = self.positions[0]
-            self.positions[0] = (x, y + 1)
-    
+        self._move(0, 1)
+
     def right(self):
-        if self.length > 0:
-            x, y = self.positions[0]
-            self.positions[0] = (x + 1, y)
-    
+        self._move(1, 0)
+
     def left(self):
-        if self.length > 0:
-            x, y = self.positions[0]
-            self.positions[0] = (x - 1, y)
-    
+        self._move(-1, 0)
+
     def grow(self):
-        x, y = self.positions[-1]
-        self.positions.append(())
-        self.length += 1
+        # Defer growth by one cell: the next move keeps the tail instead of
+        # popping it, so the body lengthens behind the head.
+        self._grow_pending += 1

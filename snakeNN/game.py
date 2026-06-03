@@ -14,6 +14,9 @@ DIR_VECTORS = {
     RIGHT: (1, 0),
 }
 
+# The direction directly behind each heading (a 180-degree reversal).
+OPPOSITE = {UP: DOWN, DOWN: UP, LEFT: RIGHT, RIGHT: LEFT}
+
 class SnakeGame:
     def __init__(self, height=28, width=28, cell_size=25):
         self.h = height
@@ -23,23 +26,28 @@ class SnakeGame:
 
     def reset(self):
         self.score = 0
-        self.snake = Snake(1, (self.h/2, self.w/2))
-        self.fruit = (random.randint(0, self.w - 1), random.randint(0, self.h - 1))
+        self.snake = Snake(3, (self.w/2, self.h/2))
+        self.fruit = self.spawn_fruit()
         self.direction = UP
         self.done = False
+        self.frames = 0
         return self.get_state()
 
     def step(self, action):
-        match action:
-            case int(UP):
-                self.snake.up()
-            case int(DOWN):
-                self.snake.down()
-            case int(LEFT):
-                self.snake.left()
-            case int(RIGHT):
-                self.snake.right()
-        
+        # Prevent 180s: once the snake has a body, it can't reverse straight
+        # back onto itself, so ignore the reversal and keep the current heading.
+        if self.snake.length > 1 and action == OPPOSITE[self.direction]:
+            action = self.direction
+
+        moves = {
+            UP: self.snake.up,
+            DOWN: self.snake.down,
+            LEFT: self.snake.left,
+            RIGHT: self.snake.right,
+        }
+        moves[action]()
+
+        self.frames += 1
         self.direction = action
 
         reward = -0.01
@@ -50,15 +58,27 @@ class SnakeGame:
             return self.get_state(), reward, self.done, self.score
 
         x, y = self.snake.positions[0]
+
         if x == self.fruit[0] and y == self.fruit[1]:
             self.snake.grow()
-            self.fruit = (random.randint(0, self.w - 1), random.randint(0, self.h - 1))
+            self.fruit = self.spawn_fruit()
 
             reward += 10
             self.score += 1
+            self.frames = 0
         
+        if self.frames > 100 * self.snake.length:
+            self.done = True
+            return self.get_state(), reward, self.done, self.score
+
         return self.get_state(), reward, self.done, self.score
+
+    def spawn_fruit(self):
+        fruit = (random.randint(0, self.w - 1), random.randint(0, self.h - 1))
+        while fruit in self.snake.positions:
+            fruit = (random.randint(0, self.w - 1), random.randint(0, self.h - 1))
         
+        return fruit
 
     def _is_collision(self, point):
         """True if `point` (col, row) hits a wall or the snake's own body."""
