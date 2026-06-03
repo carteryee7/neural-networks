@@ -1,75 +1,110 @@
-import pygame
-import pandas as pd
-import numpy as np
 from snake import Snake
+import numpy as np
 import random
-import torch
-from model import SnakeNN
 
 
-rows = 28
-cols = 28
-score = 0
+UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
-CELL_SIZE = 25
+# Maps each direction constant to a (dx, dy) step in grid cells.
+# y increases downward (matches pygame and snake.up() doing y -= 1).
+DIR_VECTORS = {
+    UP: (0, -1),
+    DOWN: (0, 1),
+    LEFT: (-1, 0),
+    RIGHT: (1, 0),
+}
 
-pygame.init()
-screen = pygame.display.set_mode((cols * CELL_SIZE, rows * CELL_SIZE))
-clock = pygame.time.Clock()
+class SnakeGame:
+    def __init__(self, height=28, width=28, cell_size=25):
+        self.h = height
+        self.w = width
+        self.cell_size = cell_size
+        self.reset()
 
-snake = Snake(1, (rows/2, cols/2), CELL_SIZE)
-fruit = (random.randint(0, cols), random.randint(0, rows))
+    def reset(self):
+        self.score = 0
+        self.snake = Snake(1, (self.h/2, self.w/2))
+        self.fruit = (random.randint(0, self.w - 1), random.randint(0, self.h - 1))
+        self.direction = UP
+        self.done = False
+        return self.get_state()
 
-torch.manual_seed(67)
-model = SnakeNN()
+    def step(self, action):
+        match action:
+            case int(UP):
+                self.snake.up()
+            case int(DOWN):
+                self.snake.down()
+            case int(LEFT):
+                self.snake.left()
+            case int(RIGHT):
+                self.snake.right()
+        
+        self.direction = action
 
-movement = ''
+        reward = -0.01
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN and movement != 's':
-            if event.key == pygame.K_UP:
-                movement = 'u'
-            if event.key == pygame.K_DOWN:
-                movement = 'd'
-            if event.key == pygame.K_RIGHT:
-                movement = 'r'
-            if event.key == pygame.K_LEFT:
-                movement = 'l'
+        if self._is_collision(self.snake.positions[0]):
+            self.done = True
+            reward -= 10
+            return self.get_state(), reward, self.done, self.score
 
-    screen.fill((0, 0, 0))
+        x, y = self.snake.positions[0]
+        if x == self.fruit[0] and y == self.fruit[1]:
+            self.snake.grow()
+            self.fruit = (random.randint(0, self.w - 1), random.randint(0, self.h - 1))
 
-    match movement:
-        case 'u':
-            snake.up()
-        case 'd':
-            snake.down()
-        case 'r':
-            snake.right()
-        case 'l':
-            snake.left()
+            reward += 10
+            self.score += 1
+        
+        return self.get_state(), reward, self.done, self.score
+        
 
-    x, y = snake.positions[0]
+    def _is_collision(self, point):
+        """True if `point` (col, row) hits a wall or the snake's own body."""
+        x, y = point
+        if x < 0 or x >= self.w or y < 0 or y >= self.h:
+            return True
+        if point in self.snake.positions[1:]:
+            return True
+        return False
 
-    if y < 0 or y > rows * CELL_SIZE:
-        movement = 's'
-    if x < 0 or x > cols * CELL_SIZE:
-        movement = 's'
-    if x == fruit[0] and y == fruit[1]:
-        score += 1
-        fruit = (random.randint(0, cols-1), random.randint(0, rows-1))
-    
-    rad = CELL_SIZE / 2.0
-    #pygame.draw.circle(screen, (255,0,0), (fruit[0] * CELL_SIZE + rad, fruit[1] * CELL_SIZE - rad), rad)
-    pygame.draw.rect(screen, (255,0,0), (fruit[0] * CELL_SIZE, fruit[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+    def _danger(self):
+        """(straight, right, left) danger flags relative to current heading."""
+        head = self.snake.positions[0]
+        dx, dy = DIR_VECTORS[self.direction]
 
-    for i in range(snake.length):
-        x, y = snake.positions[i]
-        pygame.draw.rect(screen, (0,255,0), (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        straight = (head[0] + dx, head[1] + dy)   # same heading
+        right    = (head[0] - dy, head[1] + dx)   # 90 deg clockwise
+        left     = (head[0] + dy, head[1] - dx)   # 90 deg counter-clockwise
 
-    pygame.display.flip()
-    clock.tick(10)
+        return (
+            int(self._is_collision(straight)),
+            int(self._is_collision(right)),
+            int(self._is_collision(left)),
+        )
 
+    def get_state(self):
+        head = self.snake.positions[0]
+        fx, fy = self.fruit
+
+        danger_straight, danger_right, danger_left = self._danger()
+
+        state = [
+            # Danger relative to the snake's heading
+            danger_straight,
+            danger_right,
+            danger_left,
+            # Current direction (one-hot)
+            int(self.direction == UP),
+            int(self.direction == DOWN),
+            int(self.direction == LEFT),
+            int(self.direction == RIGHT),
+            # Fruit location relative to the head
+            int(fx < head[0]),   # fruit is to the left
+            int(fx > head[0]),   # fruit is to the right
+            int(fy < head[1]),   # fruit is up
+            int(fy > head[1]),   # fruit is down
+        ]
+
+        return np.array(state, dtype=np.float32)

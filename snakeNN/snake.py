@@ -1,5 +1,4 @@
 
-
 class Snake():
     def __init__(self, length=1, start_pos=(0,0), cell_size=25):
         self.length = length
