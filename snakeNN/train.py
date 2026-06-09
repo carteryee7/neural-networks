@@ -85,12 +85,6 @@ for i in range(episodes):
         screen.fill((0, 0, 0))
 
         if i % 50 == 0:
-
-            text_surface = game_font.render("Episode: " + str(i), True, (255, 255, 255))
-            text_surface2 = game_font.render("Score: " + str(score), True, (255, 255, 255))
-
-            screen.blit(text_surface, (12, 14))
-            screen.blit(text_surface2, (12, 28))
         
             rad = CELL_SIZE / 2.0
             #pygame.draw.circle(screen, (255,0,0), (fruit[0] * CELL_SIZE + rad, fruit[1] * CELL_SIZE - rad), rad)
@@ -104,6 +98,12 @@ for i in range(episodes):
 
                 x, y = game.snake.positions[j]
                 pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+            
+            text_surface = game_font.render("Episode: " + str(i), True, (255, 255, 255))
+            text_surface2 = game_font.render("Score: " + str(score), True, (255, 255, 255))
+
+            screen.blit(text_surface, (12, 14))
+            screen.blit(text_surface2, (12, 28))
 
             pygame.display.flip()
             clock.tick(1000)
@@ -113,7 +113,7 @@ for i in range(episodes):
     epsilon = max(epsilon * epsilon_decay, epsilon_min) # exponential decay
     scores.append(score)
 
-torch.save(model.state_dict(), 'snake_model.pt')
+torch.save(model.state_dict(), 'snake_model2.pt')
 print("Episode " + str(scores.index(max(scores))) + ": " + str(max(scores)))
 
 plt.plot(range(episodes), scores)
