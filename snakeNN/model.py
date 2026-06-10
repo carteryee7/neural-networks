@@ -26,5 +26,5 @@ cnn = nn.Sequential(
     nn.Linear(64 * 7 * 7, 128),
     nn.ReLU(),
     nn.Dropout(0.25),
-    nn.Linear(128, 10),
+    nn.Linear(128, 4),
 )

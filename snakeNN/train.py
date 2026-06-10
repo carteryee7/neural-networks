@@ -50,7 +50,8 @@ for i in range(episodes):
             action = random.randint(0,3)
         else:
             with torch.no_grad():
-                pred = model(state)
+                state_t = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+                pred = model(state_t)
                 action = pred.argmax().item()
         
         next_state, reward, done, score = game.step(action)

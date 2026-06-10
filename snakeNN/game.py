@@ -134,18 +134,22 @@ class SnakeGame:
 
         # change to grid state for convolutional
 
-        grid = [[(0,0,0) for _ in range(self.h)] for _ in range(self.w)] # channel 0 = body, ch1 = head, ch2 = fruit
+        grid = [[(0,0,0) for _ in range(self.w)] for _ in range(self.h)] # channel 0 = body, ch1 = head, ch2 = fruit
 
         for i in range(len(self.snake.positions)):
 
             x, y = self.snake.positions[i]
-            
-            if i == 0:
-                grid[y][x] = (0, 1, 0) # head
-            else:
-                grid[y][x] = (1, 0, 0) # body
+
+            x = int(x)
+            y = int(y)
+
+            if x < 28 and x > 0 and y < 28 and y > 0:
+                if i == 0:
+                    grid[y][x] = (0, 1, 0) # head
+                else:
+                    grid[y][x] = (1, 0, 0) # body
         
         fx, fy = self.fruit
         grid[fy][fx] = (0, 0, 1) # fruit
 
-        return np.array(grid, dtype=np.float32)
+        return np.array(grid, dtype=np.float32).transpose(2, 0, 1) # (H, W, C) -> (C, H, W)
