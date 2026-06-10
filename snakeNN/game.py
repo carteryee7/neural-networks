@@ -1,6 +1,7 @@
 from snake import Snake
 import numpy as np
 import random
+import math
 
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
@@ -39,6 +40,8 @@ class SnakeGame:
         if self.snake.length > 1 and action == OPPOSITE[self.direction]:
             action = self.direction
 
+        distance1 = math.sqrt((self.snake.positions[0][0] - self.fruit[0]) ** 2 + (self.snake.positions[0][1] - self.fruit[1]) ** 2)
+
         moves = {
             UP: self.snake.up,
             DOWN: self.snake.down,
@@ -58,6 +61,12 @@ class SnakeGame:
             return self.get_state(), reward, self.done, self.score
 
         x, y = self.snake.positions[0]
+
+        distance2 = math.sqrt((self.snake.positions[0][0] - self.fruit[0]) ** 2 + (self.snake.positions[0][1] - self.fruit[1]) ** 2)
+        if distance2 < distance1:
+            reward += 0.1
+        else:
+            reward -= 0.1
 
         if x == self.fruit[0] and y == self.fruit[1]:
             self.snake.grow()
@@ -135,6 +144,9 @@ class SnakeGame:
         # change to grid state for convolutional
 
         grid = [[(0,0,0) for _ in range(self.w)] for _ in range(self.h)] # channel 0 = body, ch1 = head, ch2 = fruit
+
+        if self.done:
+            return np.array(grid, dtype=np.float32).transpose(2, 0, 1)
 
         for i in range(len(self.snake.positions)):
 

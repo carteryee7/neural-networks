@@ -25,6 +25,5 @@ cnn = nn.Sequential(
     nn.Flatten(),                     # 64*7*7 = 3136
     nn.Linear(64 * 7 * 7, 128),
     nn.ReLU(),
-    nn.Dropout(0.25),
     nn.Linear(128, 4),
 )
