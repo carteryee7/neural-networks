@@ -14,3 +14,17 @@ class SnakeNN(nn.Module):
         out = self.out(x)
 
         return out
+
+cnn = nn.Sequential(
+    nn.Conv2d(3, 32, 3, padding=1),   # 28x28
+    nn.ReLU(),
+    nn.MaxPool2d(2, 2),               # 14x14
+    nn.Conv2d(32, 64, 3, padding=1),  # 14x14
+    nn.ReLU(),
+    nn.MaxPool2d(2, 2),               # 7x7
+    nn.Flatten(),                     # 64*7*7 = 3136
+    nn.Linear(64 * 7 * 7, 128),
+    nn.ReLU(),
+    nn.Dropout(0.25),
+    nn.Linear(128, 10),
+)

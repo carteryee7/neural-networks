@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from game import SnakeGame
-from model import SnakeNN
+from model import SnakeNN, cnn
 from collections import deque
 import random
 import matplotlib.pyplot as plt
@@ -20,7 +20,8 @@ clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 20)
 
 torch.manual_seed(67)
-model = SnakeNN()
+#model = SnakeNN()
+model = cnn
 
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -113,7 +114,7 @@ for i in range(episodes):
     epsilon = max(epsilon * epsilon_decay, epsilon_min) # exponential decay
     scores.append(score)
 
-torch.save(model.state_dict(), 'snake_model2.pt')
+torch.save(model.state_dict(), 'models/cnn_model.pt')
 print("Episode " + str(scores.index(max(scores))) + ": " + str(max(scores)))
 
 plt.plot(range(episodes), scores)
