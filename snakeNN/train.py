@@ -19,9 +19,12 @@ screen = pygame.display.set_mode((cols * CELL_SIZE, rows * CELL_SIZE))
 clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 20)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 torch.manual_seed(67)
 #model = SnakeNN()
 model = cnn
+model.to(device)
 
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -40,6 +43,7 @@ scores = []
 for i in range(episodes):
 
     state = torch.tensor(game.reset())
+    state.to(device)
 
     while not game.done:
         for event in pygame.event.get():
@@ -62,8 +66,8 @@ for i in range(episodes):
             batch = random.sample(memory, batch_size)
 
             states, actions, rewards, next_states, dones = zip(*batch)
-            states      = torch.tensor(np.array(states))
-            next_states = torch.tensor(np.array(next_states))
+            states      = torch.tensor(np.array(states)).to(device)
+            next_states = torch.tensor(np.array(next_states)).to(device)
             actions     = torch.tensor(actions)
             rewards     = torch.tensor(rewards)
             dones       = torch.tensor(dones, dtype=torch.float32)
