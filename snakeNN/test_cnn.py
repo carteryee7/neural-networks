@@ -4,9 +4,9 @@ from game import SnakeGame
 from model import SnakeNN, cnn
 
 
-cols = 28
-rows = 28
-CELL_SIZE = 25
+cols = 10
+rows = 10
+CELL_SIZE = 70
 
 pygame.init()
 screen = pygame.display.set_mode((cols * CELL_SIZE, rows * CELL_SIZE))
@@ -15,7 +15,7 @@ game_font = pygame.font.Font(None, 20)
 
 runs = int(input("Runs: "))
 tick_speed = int(input("Tick Speed: "))
-game = SnakeGame()
+game = SnakeGame(rows, cols, CELL_SIZE)
 
 #model = SnakeNN()
 

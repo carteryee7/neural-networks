@@ -1,8 +1,7 @@
 
 class Snake():
-    def __init__(self, length=1, start_pos=(0, 0), cell_size=25):
+    def __init__(self, length=1, start_pos=(0, 0)):
         self.length = length
-        self.cell_size = cell_size
         # Head is positions[0]; the body trails behind it.
         x, y = start_pos
         self.positions = [(x, y + i) for i in range(length)]
