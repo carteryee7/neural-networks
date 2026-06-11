@@ -115,7 +115,7 @@ class SnakeGame:
 
     def get_state(self):
 
-        
+        """
         head = self.snake.positions[0]
         fx, fy = self.fruit
 
@@ -165,4 +165,3 @@ class SnakeGame:
         grid[fy][fx] = (0, 0, 1) # fruit
 
         return np.array(grid, dtype=np.float32).transpose(2, 0, 1) # (H, W, C) -> (C, H, W)
-        """

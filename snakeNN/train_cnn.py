@@ -10,10 +10,10 @@ import copy
 import random
 import matplotlib.pyplot as plt
 
-rows = 28
-cols = 28
+rows = 8
+cols = 8
 
-CELL_SIZE = 25
+CELL_SIZE = 50
 
 pygame.init()
 screen = pygame.display.set_mode((cols * CELL_SIZE, rows * CELL_SIZE))
@@ -36,8 +36,8 @@ target_model.eval()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-game = SnakeGame()
-episodes = 1500
+game = SnakeGame(rows, cols, CELL_SIZE)
+episodes = 1000
 gamma = 0.9
 epsilon = 1.0
 epsilon_decay = .99
@@ -130,7 +130,7 @@ for i in range(episodes):
     epsilon = max(epsilon * epsilon_decay, epsilon_min) # exponential decay
     scores.append(score)
 
-torch.save(model.state_dict(), 'models/cnn_model.pt')
+torch.save(model.state_dict(), 'models/cnn_8x8.pt')
 print("Episode " + str(scores.index(max(scores))) + ": " + str(max(scores)))
 
 plt.plot(range(episodes), scores)

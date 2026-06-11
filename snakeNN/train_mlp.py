@@ -23,13 +23,13 @@ torch.manual_seed(67)
 model = SnakeNN()
 
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 game = SnakeGame(rows, cols, CELL_SIZE)
 episodes = 1000
 gamma = 0.9
 epsilon = 1.0
-epsilon_decay = .99
+epsilon_decay = .95
 epsilon_min = .01
 
 memory = deque(maxlen=100_000)
@@ -113,7 +113,7 @@ for i in range(episodes):
     epsilon = max(epsilon * epsilon_decay, epsilon_min) # exponential decay
     scores.append(score)
 
-torch.save(model.state_dict(), 'model_10x10.pt')
+torch.save(model.state_dict(), 'models/mlp_10x10.pt')
 print("Episode " + str(scores.index(max(scores))) + ": " + str(max(scores)))
 
 plt.plot(range(episodes), scores)
