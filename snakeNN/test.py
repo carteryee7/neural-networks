@@ -1,7 +1,7 @@
 import pygame
 import torch
 from game import SnakeGame
-from model import SnakeNN
+from model import SnakeNN, cnn
 
 
 cols = 28
@@ -17,12 +17,15 @@ runs = int(input("Runs: "))
 tick_speed = int(input("Tick Speed: "))
 game = SnakeGame()
 
-model = SnakeNN()
-model.load_state_dict(torch.load('models/snake_model.pt'))
+#model = SnakeNN()
+
+model = cnn
+model.load_state_dict(torch.load('models/cnn_model.pt', torch.device("cpu")))
 model.eval()
 
+
 for i in range(runs):
-    state = torch.tensor(game.reset())
+    state = torch.tensor(game.reset()).unsqueeze(0)
 
     while not game.done:
         for event in pygame.event.get():
@@ -59,5 +62,5 @@ for i in range(runs):
         pygame.display.flip()
         clock.tick(tick_speed)
 
-        state = torch.tensor(next_state)
+        state = torch.tensor(next_state).unsqueeze(0)
 
