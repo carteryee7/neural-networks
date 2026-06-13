@@ -17,7 +17,7 @@ class NN:
         return output
     
     def back_prop(self, y, alpha):
-        y = one_hot_Y(y)
+        y = one_hot_Y(y, self.out.out_features)
         m = y.shape[0]
 
         dz = self.out.a - y

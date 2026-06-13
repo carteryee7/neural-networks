@@ -110,5 +110,5 @@ with torch.no_grad():
 print(f'We got {correct} correct!')
 """
 
-torch.save(model.state_dict(), 'digit_model.pt')
+#torch.save(model.state_dict(), 'digit_model.pt')
 

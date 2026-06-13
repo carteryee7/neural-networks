@@ -8,11 +8,10 @@ class Linear():
         self.activation = activation
         self.bias = bias
         self.reset_params()
-        
     
     def __call__(self, x):
         _, w = x.shape
-        
+
         if w == self.in_features:
             z = x @ self.A.transpose() + self.b
             self.x = x
@@ -20,7 +19,7 @@ class Linear():
             self.a = self.activation(z)
             return self.a
         else:
-            print(f"Error: input cols ({w}) must be equal to in_features ({self.in_features})")
+            raise RuntimeError(f"Error: input cols ({w}) must be equal to in_features ({self.in_features})")
     
     def reset_params(self):
         self.A = np.array([[random.uniform(-0.5, 0.5) for _ in range(self.in_features)] for _ in range(self.out_features)])
@@ -47,21 +46,25 @@ def relu(x):
     return np.maximum(x, 0)
 
 def softmax(x):
-    x = np.exp(x) # convert each element to e^x
-    summation = sum(x)
-    out = x / summation
-    
-    return out
+    x = x - np.max(x, axis=1, keepdims=True)   # stability shift; result unchanged
+    e = np.exp(x)
+    return e / np.sum(e, axis=1, keepdims=True)
 
 def deriv_relu(x):
     return x > 0
 
-def one_hot_Y(y):
-    one_hot = np.zeros(y.size, y.max() + 1)
+def one_hot_Y(y, num_classes=10):
+    one_hot = np.zeros((y.size, num_classes))
     one_hot[np.arange(y.size), y] = 1
     return one_hot
 
 def mseLoss(a, y):
     #n = a.size # same as y
     loss = (a - y) ** 2
-    return sum(loss)
+    return sum(np.sum(loss, axis=1)) / a.shape[0]
+
+def cross_entropy(a, y):
+    # a: softmax outputs (m, classes); y: one-hot targets (m, classes)
+    m = a.shape[0]
+    eps = 1e-12                          # prevent log(0) → -inf
+    return -np.sum(y * np.log(a + eps)) / m
