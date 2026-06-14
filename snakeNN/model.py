@@ -42,3 +42,5 @@ cnn = nn.Sequential(
     nn.ReLU(),
     nn.Linear(128, 4),
 )
+
+# can try to make cnn model from scratch
