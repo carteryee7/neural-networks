@@ -11,7 +11,7 @@ class Linear():
     
     def __call__(self, x):
         # linear transformation through the layer
-        
+
         _, w = x.shape
 
         if w == self.in_features:
@@ -34,7 +34,7 @@ class Linear():
         fan_in = self.in_features   # input connections
         fan_out = self.out_features  # output connections
 
-        # compute He standard deviation
+        # compute He standard deviation (good for relu activation) xavier -> sigmoid/tanh
         std_dev = np.sqrt(2.0 / fan_in)
 
         # initialize weights matrix
