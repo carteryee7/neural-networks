@@ -10,6 +10,8 @@ class Linear():
         self.reset_params()
     
     def __call__(self, x):
+        # linear transformation through the layer
+        
         _, w = x.shape
 
         if w == self.in_features:
@@ -22,10 +24,24 @@ class Linear():
             raise RuntimeError(f"Error: input cols ({w}) must be equal to in_features ({self.in_features})")
     
     def reset_params(self):
+        """
         self.A = np.array([[random.uniform(-0.5, 0.5) for _ in range(self.in_features)] for _ in range(self.out_features)])
         self.b = np.array([0.0 for _ in range(self.out_features)])
         self.gradA = np.array([[0.0 for _ in range(self.in_features)] for _ in range(self.out_features)])
         self.gradb = np.array([0.0 for _ in range(self.out_features)])
+        """
+
+        fan_in = self.in_features   # input connections
+        fan_out = self.out_features  # output connections
+
+        # compute He standard deviation
+        std_dev = np.sqrt(2.0 / fan_in)
+
+        # initialize weights matrix
+        self.A = np.random.randn(fan_out, fan_in) * std_dev
+        self.b = np.zeros((1, fan_out))
+
+        # seems to perform better with He initialization as opposed to uniform
 
 
 def relu(x):
@@ -66,5 +82,5 @@ def mseLoss(a, y):
 def cross_entropy(a, y):
     # a: softmax outputs (m, classes); y: one-hot targets (m, classes)
     m = a.shape[0]
-    eps = 1e-12                          # prevent log(0) → -inf
+    eps = 1e-12                          # prevent log(0)  -inf
     return -np.sum(y * np.log(a + eps)) / m
