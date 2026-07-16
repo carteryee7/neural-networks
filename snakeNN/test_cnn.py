@@ -15,7 +15,7 @@ game_font = pygame.font.Font(None, 20)
 
 runs = int(input("Runs: "))
 tick_speed = int(input("Tick Speed: "))
-game = SnakeGame(rows, cols, CELL_SIZE)
+game = SnakeGame(rows, cols, CELL_SIZE, state_mode="grid")
 
 #model = SnakeNN()
 

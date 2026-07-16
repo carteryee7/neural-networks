@@ -19,10 +19,11 @@ DIR_VECTORS = {
 OPPOSITE = {UP: DOWN, DOWN: UP, LEFT: RIGHT, RIGHT: LEFT}
 
 class SnakeGame:
-    def __init__(self, height=28, width=28, cell_size=25):
+    def __init__(self, height=28, width=28, cell_size=25, state_mode="features"):
         self.h = height
         self.w = width
         self.cell_size = cell_size
+        self.state_mode = state_mode   # "features" for the MLP, "grid" for the CNN
         self.reset()
 
     def reset(self):
@@ -114,8 +115,14 @@ class SnakeGame:
         )
 
     def get_state(self):
+        # Dispatch on the mode chosen at construction so the MLP and CNN
+        # scripts can share this environment without editing it.
+        if self.state_mode == "grid":
+            return self._grid_state()
+        return self._features_state()
 
-        """
+    def _features_state(self):
+        """11-feature vector for the MLP."""
         head = self.snake.positions[0]
         fx, fy = self.fruit
 
@@ -139,29 +146,21 @@ class SnakeGame:
         ]
 
         return np.array(state, dtype=np.float32)
-        """
 
-        # change to grid state for convolutional
-
-        grid = [[(0,0,0) for _ in range(self.w)] for _ in range(self.h)] # channel 0 = body, ch1 = head, ch2 = fruit
+    def _grid_state(self):
+        """3-channel board tensor (C, H, W) for the CNN.
+        channel 0 = body, channel 1 = head, channel 2 = fruit."""
+        grid = [[(0, 0, 0) for _ in range(self.w)] for _ in range(self.h)]
 
         if self.done:
             return np.array(grid, dtype=np.float32).transpose(2, 0, 1)
 
-        for i in range(len(self.snake.positions)):
+        for i, (x, y) in enumerate(self.snake.positions):
+            x, y = int(x), int(y)
+            if 0 <= x < self.w and 0 <= y < self.h:
+                grid[y][x] = (0, 1, 0) if i == 0 else (1, 0, 0)
 
-            x, y = self.snake.positions[i]
-
-            x = int(x)
-            y = int(y)
-
-            if x < 28 and x > 0 and y < 28 and y > 0:
-                if i == 0:
-                    grid[y][x] = (0, 1, 0) # head
-                else:
-                    grid[y][x] = (1, 0, 0) # body
-        
         fx, fy = self.fruit
-        grid[fy][fx] = (0, 0, 1) # fruit
+        grid[fy][fx] = (0, 0, 1)
 
-        return np.array(grid, dtype=np.float32).transpose(2, 0, 1) # (H, W, C) -> (C, H, W)
+        return np.array(grid, dtype=np.float32).transpose(2, 0, 1)  # (H, W, C) -> (C, H, W)
