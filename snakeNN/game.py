@@ -114,6 +114,51 @@ class SnakeGame:
             int(self._is_collision(left)),
         )
 
+    def _danger_distance(self):
+        head = self.snake.positions[0]
+        dx, dy = DIR_VECTORS[self.direction]
+
+        straight_dist = 0
+        right_dist = 0
+        left_dist = 0
+
+        not_collision_str = True
+        not_collision_right = True
+        not_collision_left = True
+
+        for i in range(self.h - 1):
+
+            if not_collision_str == not_collision_right == not_collision_left == False:
+                break
+
+            if not_collision_str:
+                straight_dist = i
+                straight = (head[0] + ((i + 1) * dx), head[1] + ((i + 1) * dy))   # same heading
+                not_collision_str = not self._is_collision(straight)
+            
+            if not_collision_right:
+                right_dist = i
+                right    = (head[0] - ((i + 1) * dy), head[1] + ((i + 1) * dx))   # 90 deg clockwise
+                not_collision_right = not self._is_collision(right)
+                
+            if not_collision_left:
+                left_dist = i
+                left     = (head[0] + ((i + 1) * dy), head[1] - ((i + 1) * dx))   # 90 deg counter-clockwise
+                not_collision_left = not self._is_collision(left)
+                
+        
+        return (
+            straight_dist / (self.h - 1),
+            right_dist / (self.h - 1),
+            left_dist / (self.h - 1),
+        )
+
+    def _fruit_distance(self):
+        sx, sy = self.snake.positions[0]
+        fx, fy = self.fruit
+
+        return math.sqrt((sx - fx) ** 2 + (sy - fy) ** 2) / math.sqrt((self.h ** 2) + (self.w ** 2))
+
     def get_state(self):
         # Dispatch on the mode chosen at construction so the MLP and CNN
         # scripts can share this environment without editing it.
@@ -122,11 +167,12 @@ class SnakeGame:
         return self._features_state()
 
     def _features_state(self):
-        """11-feature vector for the MLP."""
+        """13-feature vector for the MLP."""
         head = self.snake.positions[0]
         fx, fy = self.fruit
 
-        danger_straight, danger_right, danger_left = self._danger()
+        #danger_straight, danger_right, danger_left = self._danger()
+        danger_straight, danger_right, danger_left = self._danger_distance()
 
         state = [
             # Danger relative to the snake's heading
@@ -143,6 +189,8 @@ class SnakeGame:
             int(fx > head[0]),   # fruit is to the right
             int(fy < head[1]),   # fruit is up
             int(fy > head[1]),   # fruit is down
+            self._fruit_distance(), # distance to fruit
+            len(self.snake.positions), # length of snake
         ]
 
         return np.array(state, dtype=np.float32)
