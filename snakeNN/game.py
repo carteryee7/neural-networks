@@ -158,6 +158,11 @@ class SnakeGame:
         fx, fy = self.fruit
 
         return math.sqrt((sx - fx) ** 2 + (sy - fy) ** 2) / math.sqrt((self.h ** 2) + (self.w ** 2))
+    
+    def _flood_fill_space(self):
+
+        def flood(node):
+            
 
     def get_state(self):
         # Dispatch on the mode chosen at construction so the MLP and CNN
@@ -190,7 +195,7 @@ class SnakeGame:
             int(fy < head[1]),   # fruit is up
             int(fy > head[1]),   # fruit is down
             self._fruit_distance(), # distance to fruit
-            len(self.snake.positions), # length of snake
+            len(self.snake.positions) / (self.h * self.w), # length of snake
         ]
 
         return np.array(state, dtype=np.float32)
