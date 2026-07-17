@@ -161,7 +161,29 @@ class SnakeGame:
     
     def _flood_fill_space(self):
 
-        def flood(node):
+        grid = [[0 for _ in range(self.w)] for _ in range(self.h)]
+
+        for _, (x, y) in enumerate(self.snake.positions):
+            x, y = int(x), int(y)
+            if 0 <= x < self.w and 0 <= y < self.h:
+                grid[y][x] = 1
+        
+        space_count = [0]
+
+        def flood(y, x):
+            if grid[y][x] != 1:
+                space_count[0] += 1
+            if grid[y][x]
+
+            if y > 0:
+                flood(y - 1, x)
+            if y < self.h - 1:
+                flood(y + 1, x)
+            if x > 0:
+                flood(y, x - 1)
+            if y < self.h - 1:
+                flood(y, x + 1)
+
             
 
     def get_state(self):
