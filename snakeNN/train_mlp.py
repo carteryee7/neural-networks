@@ -26,7 +26,7 @@ criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 game = SnakeGame(rows, cols, CELL_SIZE) # featues default
-episodes = 1000
+episodes = 2000
 gamma = 0.9
 epsilon = 1.0
 epsilon_decay = .95
