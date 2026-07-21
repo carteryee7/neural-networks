@@ -161,6 +161,23 @@ class SnakeGame:
     
     def _flood_fill_space(self):
 
+        def flood(y, x):
+            space_count[0] += 1
+            grid[y][x] = 1
+
+            if y > 0:
+                if grid[y - 1][x] != 1:
+                    flood(y - 1, x)
+            if y < self.h - 1:
+                if grid[y + 1][x] != 1:
+                    flood(y + 1, x)
+            if x > 0:
+                if grid[y][x - 1] != 1:
+                    flood(y, x - 1)
+            if y < self.h - 1:
+                if grid[y][x + 1] != 1:
+                    flood(y, x + 1)
+
         grid = [[0 for _ in range(self.w)] for _ in range(self.h)]
 
         for _, (x, y) in enumerate(self.snake.positions):
@@ -170,21 +187,11 @@ class SnakeGame:
         
         space_count = [0]
 
-        def flood(y, x):
-            if grid[y][x] != 1:
-                space_count[0] += 1
-            if grid[y][x]
+        head_x, head_y = self.snake.positions[0]
+        flood(head_y, head_x)
 
-            if y > 0:
-                flood(y - 1, x)
-            if y < self.h - 1:
-                flood(y + 1, x)
-            if x > 0:
-                flood(y, x - 1)
-            if y < self.h - 1:
-                flood(y, x + 1)
-
-            
+        return space_count[0]
+        
 
     def get_state(self):
         # Dispatch on the mode chosen at construction so the MLP and CNN
@@ -218,6 +225,7 @@ class SnakeGame:
             int(fy > head[1]),   # fruit is down
             self._fruit_distance(), # distance to fruit
             len(self.snake.positions) / (self.h * self.w), # length of snake
+            self._flood_fill_space(), # reachable space for the snake (flood-fill)
         ]
 
         return np.array(state, dtype=np.float32)
