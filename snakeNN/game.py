@@ -174,7 +174,7 @@ class SnakeGame:
             if x > 0:
                 if grid[y][x - 1] != 1:
                     flood(y, x - 1)
-            if y < self.h - 1:
+            if x < self.w - 1:
                 if grid[y][x + 1] != 1:
                     flood(y, x + 1)
 
@@ -187,10 +187,13 @@ class SnakeGame:
         
         space_count = [0]
 
-        head_x, head_y = self.snake.positions[0]
+        head_x, head_y = int(self.snake.positions[0][0]), int(self.snake.positions[0][1])
+        # On a wall death the head is off-grid; there is no reachable space.
+        if not (0 <= head_x < self.w and 0 <= head_y < self.h):
+            return 0
         flood(head_y, head_x)
 
-        return space_count[0]
+        return space_count[0] / (self.h * self.w)
         
 
     def get_state(self):
