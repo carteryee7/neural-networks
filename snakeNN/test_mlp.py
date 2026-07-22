@@ -18,7 +18,7 @@ tick_speed = int(input("Tick Speed: "))
 game = SnakeGame(rows, cols, CELL_SIZE)
 
 model = SnakeNN()
-model.load_state_dict(torch.load('models/model_10x10.pt'))
+model.load_state_dict(torch.load('models/mlp_10x10.pt'))
 model.eval()
 
 for i in range(runs):
