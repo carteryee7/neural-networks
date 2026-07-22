@@ -15,6 +15,33 @@ class SnakeNN(nn.Module):
 
         return out
 
+# double dqn and dueling heads
+
+"""
+class SnakeNN(nn.Module):
+    def __init__(self, h1=128, h2=64, in_features=14, out_features=4):
+        super().__init__()
+        # Shared feature layers
+        self.fc1 = nn.Linear(in_features, h1)
+        self.fc2 = nn.Linear(h1, h2)
+
+        # dueling heads: how good is this state (value) vs. how much better
+        # each action is than average in it (advantage).
+        self.value = nn.Linear(h2, 1)
+        self.advantage = nn.Linear(h2, out_features)
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+
+        value = self.value(x)              # V(s)     -> (..., 1)
+        advantage = self.advantage(x)      # A(s, a)  -> (..., out_features)
+
+        # Q(s, a) = V(s) + (A(s, a) - mean_a A(s, a)).
+        # subtracting the mean advantage keeps V and A identifiable.
+        return value + (advantage - advantage.mean(dim=-1, keepdim=True))
+"""
+
 """
 cnn = nn.Sequential(
     nn.Conv2d(3, 32, 3, padding=1),   # 28x28

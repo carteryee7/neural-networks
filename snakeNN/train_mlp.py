@@ -97,11 +97,21 @@ for i in range(episodes):
             # Q-value the network gave the action we actually took
             q_pred = model(states).gather(1, actions.unsqueeze(1)).squeeze(1)
 
-            # Best achievable Q from the next state (no grad — it's a target)
+            # best achievable Q from the next state (no grad-it's a target)
             with torch.no_grad():
                 # q_next = model(next_states).max(dim=1).values
                 q_next = target_model(next_states).max(dim=1).values
                 q_target = rewards + gamma * q_next * (1 - dones)   # zero future if done
+
+            """
+            # double DQN: the online net picks the next action, the target
+            # net evaluates it - decoupling these curbs Q-value overestimation.
+
+            with torch.no_grad():
+                next_actions = model(next_states).argmax(dim=1)
+                q_next = target_model(next_states).gather(1, next_actions.unsqueeze(1)).squeeze(1)
+                q_target = rewards + gamma * q_next * (1 - dones)   # zero future if done
+            """
 
             loss = criterion(q_pred, q_target)
             optimizer.zero_grad()
