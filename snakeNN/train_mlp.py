@@ -38,7 +38,7 @@ scores = []
 survival = []   # steps survived per episode
 
 
-def evaluate_random(n_episodes=100):
+def evaluate_random(n_episodes=500):
     """Average score/survival of a pure-random policy — the learning baseline."""
     eval_game = SnakeGame(rows, cols, CELL_SIZE)
     total_score = total_steps = 0
