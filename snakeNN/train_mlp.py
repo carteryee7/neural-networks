@@ -7,6 +7,7 @@ from game import SnakeGame
 from model import SnakeNN
 from collections import deque
 import random
+import copy
 import matplotlib.pyplot as plt
 
 rows = 10
@@ -21,6 +22,11 @@ game_font = pygame.font.Font(None, 20)
 
 torch.manual_seed(67)
 model = SnakeNN()
+
+target_model = copy.deepcopy(model)
+target_model.eval()
+target_update_freq = 1000
+step_count = 0
 
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -93,13 +99,18 @@ for i in range(episodes):
 
             # Best achievable Q from the next state (no grad — it's a target)
             with torch.no_grad():
-                q_next = model(next_states).max(dim=1).values
+                # q_next = model(next_states).max(dim=1).values
+                q_next = target_model(next_states).max(dim=1).values
                 q_target = rewards + gamma * q_next * (1 - dones)   # zero future if done
 
             loss = criterion(q_pred, q_target)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            step_count += 1
+            if step_count % target_update_freq == 0:
+                target_model.load_state_dict(model.state_dict())
         
         state = torch.tensor(next_state)
 
