@@ -146,18 +146,3 @@ Metrics tracked across training lengths (single runs unless noted):
   pathfinding gated by a flood-fill safety check. The existing flood-fill code is
   exactly the safety primitive the pathfinding approach needs. These routinely
   score 80–90+ but are classic AI/search, not machine learning.
-
----
-
-## 7. Resume Bullets (XYZ format)
-
-- Built a Deep Q-Network agent that learned to play Snake autonomously, reaching an
-  average score ~137× a random baseline (peak 44 on a 10×10 board) and converging
-  within ~130 episodes, by implementing DQN from scratch in PyTorch with experience
-  replay, epsilon-greedy exploration, and a target network for training stability.
-
-- Cut self-trapping and raised average survival to ~175 steps per game (~11× a
-  random policy), by engineering a custom Gym-style environment (`reset`/`step`/
-  `get_state`) and a 14-feature state representation — including ray-cast danger
-  distances and a flood-fill reachable-space signal — paired with a shaped reward
-  function balancing fruit-seeking against survival.
